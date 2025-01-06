@@ -66,7 +66,7 @@ A built version of Fugro.G2O contains components from the following sources:
 * Eigen: MPL 2, with parts LGPL-2.1
 * csparse: LGPL-2.1+
 
-See [LICENSE.txt] for details. 
+See [LICENSE.txt] for details.
 
 # Packaging
 Github also builds a package for .NetFramework 4.8, .NetCoreApp 3.1, .Net 6.0, and .Net 8.0. The solution is built 4 times, for 4 configurations: `net48-release`, `netcoreapp31-release`, `net6-release`, and `net8-release`. Only for `net6-release` and `net8-release` the test project is built and run as it seems you can't set TargetFramework to be configuration-specific, and multitarget doesn't work as G2O is built in separate builds.
