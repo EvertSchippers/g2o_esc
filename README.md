@@ -10,9 +10,22 @@ through P/Invoke. There is no C++/CLI involved, so the same package works on any
 
 ## Get started
 
-Reference the `Fugro.G2O` NuGet package (built by CI, see below) and you are ready to go.
-The package contains the native library for `win-x64` and `linux-x64`; the right one is picked
-automatically at runtime.
+Reference the `Fugro.G2O` NuGet package and you are ready to go. The package contains the native
+library for `win-x64` and `linux-x64`; the right one is picked automatically at runtime.
+
+Releases are published by pushing a version tag (e.g. `git tag v3.0.0 && git push origin v3.0.0`),
+which triggers the release workflow: it builds and tests on both platforms, packs the `.nupkg`
+with the tag version and attaches it to a GitHub Release for direct download.
+
+To consume it, download the `.nupkg` into a folder and register that folder as a package source:
+
+```bash
+dotnet nuget add source ./packages -n local
+dotnet add package Fugro.G2O
+```
+
+Regular pushes to `master` additionally upload the package as a short-lived Actions artifact
+(`package`), which is handy for trying out unreleased builds.
 
 ### C# example
 

@@ -1,0 +1,75 @@
+name: Release
+
+# Publishes the Fugro.G2O NuGet package when a version tag is pushed:
+#
+#   git tag v3.0.0
+#   git push origin v3.0.0
+#
+# The package version is taken from the tag (without the leading "v").
+# The .nupkg is attached to a GitHub Release for direct download.
+
+on:
+  push:
+    tags: [ 'v*' ]
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Build native library
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build -j
+
+    - name: Test
+      run: dotnet test Fugro/Test/Fugro.G2O.Test.csproj -c Release
+
+    - name: Upload native library
+      uses: actions/upload-artifact@v4
+      with:
+        name: native-linux-x64
+        path: build/bin/libfugro_g2o.so
+
+  release:
+    runs-on: windows-latest
+    needs: linux
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Build native library
+      run: |
+        cmake -S . -B build -A x64
+        cmake --build build --config Release
+
+    - name: Test
+      run: dotnet test Fugro/Test/Fugro.G2O.Test.csproj -c Release
+
+    - name: Download Linux native library
+      uses: actions/download-artifact@v4
+      with:
+        name: native-linux-x64
+        path: build/bin
+
+    - name: Pack
+      run: |
+        $version = $env:GITHUB_REF_NAME -replace '^v', ''
+        dotnet pack Fugro/G2O.NET/Fugro.G2O.csproj -c Release -o packages -p:Version=$version
+
+    - name: Attach package to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: packages/*.nupkg
+        generate_release_notes: true
