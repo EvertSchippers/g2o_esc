@@ -70,7 +70,7 @@ Two build steps: the native library (CMake) and the managed library (dotnet).
 
 ### Windows
 
-Requires Visual Studio 2022 (C++ workload), CMake and the .NET 8 SDK.
+Requires Visual Studio 2022 (C++ workload), CMake and the .NET 10 SDK.
 
 ```powershell
 cmake -S . -B build -A x64
@@ -80,7 +80,7 @@ dotnet test Fugro/Test/Fugro.G2O.Test.csproj -c Release
 
 ### Linux
 
-Requires g++, make, CMake and the .NET 8 SDK.
+Requires g++, make, CMake and the .NET 10 SDK.
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -111,7 +111,7 @@ directory from there.
 * `External/` — bundled sources of [g2o](https://github.com/RainerKuemmerle/g2o), [Eigen](http://eigen.tuxfamily.org) and [CSparse](https://people.sc.fsu.edu/~jburkardt/c_src/csparse/csparse.html)
 * `Native/` — a thin C++ shim exposing a C API over g2o; managed state/observation logic is reached through callbacks
 * `Fugro/G2O.NET/` — the managed `Fugro.G2O` library (pure C#, `netstandard2.0`)
-* `Fugro/Test/` — NUnit test suite (`net8.0`)
+* `Fugro/Test/` — NUnit test suite (`net10.0`)
 * `CMakeLists.txt` — builds `External` + `Native` into the `fugro_g2o` shared library
 
 ## Packaging

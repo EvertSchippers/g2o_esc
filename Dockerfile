@@ -7,7 +7,7 @@
 # /app/build/bin/libfugro_g2o.so; use `docker build --output` with the `native`
 # stage to extract it for packaging.
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends cmake g++ make && \
