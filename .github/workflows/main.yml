@@ -7,42 +7,58 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
-    runs-on: windows-latest
+  linux:
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-dotnet@v3
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: | 
-          3.1.x
-          6.0.x
+        dotnet-version: 8.0.x
 
-    - name: Setup NuGet.exe for use with actions
-      uses: NuGet/setup-nuget@v1
-    
-    - name: Restore
-      run: nuget restore G2O.sln
+    - name: Build native library
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build -j
 
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1
+    - name: Test
+      run: dotnet test Fugro/Test/Fugro.G2O.Test.csproj -c Release
 
-    - name: Build .Net Framework
-      run: msbuild $Env:GITHUB_WORKSPACE\G2O.sln /p:Configuration=net48-release /p:Platform=x64
+    - name: Upload native library
+      uses: actions/upload-artifact@v4
+      with:
+        name: native-linux-x64
+        path: build/bin/libfugro_g2o.so
 
-    - name: Build .Net Core
-      run: msbuild $Env:GITHUB_WORKSPACE\G2O.sln /p:Configuration=netcoreapp31-release /p:Platform=x64
+  windows:
+    runs-on: windows-latest
+    needs: linux
+    steps:
+    - uses: actions/checkout@v4
 
-    - name: Build .Net 6.0
-      run: msbuild $Env:GITHUB_WORKSPACE\G2O.sln /p:Configuration=net6-release /p:Platform=x64
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
 
-    - name: Test .Net 6.0
-      run: dotnet test $Env:GITHUB_WORKSPACE\Fugro\Test\bin\net6-release\net6.0\Fugro.G2O.Test.dll
+    - name: Build native library
+      run: |
+        cmake -S . -B build -A x64
+        cmake --build build --config Release
+
+    - name: Test
+      run: dotnet test Fugro/Test/Fugro.G2O.Test.csproj -c Release
+
+    - name: Download Linux native library
+      uses: actions/download-artifact@v4
+      with:
+        name: native-linux-x64
+        path: build/bin
 
     - name: Pack
-      run: nuget pack $Env:GITHUB_WORKSPACE\Fugro\G2O\Fugro.G2O.nuspec
+      run: dotnet pack Fugro/G2O.NET/Fugro.G2O.csproj -c Release -o packages
 
     - name: Publish
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: package
-        path: .\*.nupkg
+        path: packages/*.nupkg
