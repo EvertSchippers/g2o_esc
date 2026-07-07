@@ -9,7 +9,7 @@ namespace Fugro.G2O
     /// A graph of states and observations that can be optimized using g2o
     /// (Levenberg-Marquardt with a sparse variable block size solver).
     /// </summary>
-    public sealed class Graph
+    public class Graph
     {
         private static readonly NativeMethods.IterationCallback s_PreIteration = OnNativePreIteration;
         private static readonly NativeMethods.IterationCallback s_PostIteration = OnNativePostIteration;
